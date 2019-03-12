@@ -18,7 +18,7 @@ The following sections describe a few use cases in more detail.
 
 A media content provider wants to allow insertion of content, such as personalised video, local news, or advertisements, into a video media stream that contains the main program content. To achieve this, media timed events used to describe the points on the media timeline, known as splice points, where switching playback to inserted content is possible.
 
-The Society for Cable and Televison Engineers (SCTE) specification [Digital Program Insertion Cueing for Cable (SCTE-35)](https://www.scte.org/SCTEDocs/Standards/SCTE%2035%202016.pdf) defines a data cue format for describing such insertion points. Use of these cues in MPEG-DASH and HLS streams is described in SCTE-35, sections 12.1 and 12.2.
+The Society for Cable and Televison Engineers (SCTE) specification [Digital Program Insertion Cueing for Cable (SCTE-35)](https://www.scte.org/SCTEDocs/Standards/SCTE%2035%202019.pdf) defines a data cue format for describing such insertion points. Use of these cues in MPEG-DASH and HLS streams is described in SCTE-35, sections 12.1 and 12.2.
 
 ### Audio stream with titles and images
 
