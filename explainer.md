@@ -20,6 +20,10 @@ A media content provider wants to allow insertion of content, such as personalis
 
 The Society for Cable and Televison Engineers (SCTE) specification [Digital Program Insertion Cueing for Cable (SCTE-35)](https://www.scte.org/SCTEDocs/Standards/SCTE%2035%202019.pdf) defines a data cue format for describing such insertion points. Use of these cues in MPEG-DASH and HLS streams is described in SCTE-35, sections 12.1 and 12.2.
 
+### Lecture recording with slideshow
+
+An HTML page contains title and info about the course/lecture, and two frames: a video of the lecturer in one, and their slides in the other. Each cue contains the URL of the slide to be presented, and the cue is active for the time range over which the slide should be visible.
+
 ### Audio stream with titles and images
 
 A media content provider wants to provide visual information alongside an audio stream, such as an image of the artist and title of the current playing track, to give users live information about the content they are listening to.
