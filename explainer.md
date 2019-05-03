@@ -42,6 +42,14 @@ A user records footage with metadata, including geolocation, on a mobile video d
 
 WebVMT is an open format for metadata cues, synchronized with a timed media file, that can be used to drive an online map rendered in a separate HTML element alongside the media element on the web page. The media playhead position controls presentation and animation of the map, e.g., pan and zoom, and allows annotations to be added and removed, e.g., markers, at specified times during media playback. Control can also be overridden by the user with the usual interactive features of the map at any time, e.g., zoom. Concrete examples are provided by the [tech demos at the WebVMT website](http://webvmt.org/demos).
 
+### Media metadata search results
+
+A user searches for online media matching certain metadata conditions, for example within a given distance of a geographic location or an acceleration profile corresponding to a traffic accident. Results are returned from a remote server using a RESTful API as a list in JSON format.
+
+It should be possible for search results to be represented as media in the user agent, with linked metadata presented as `DataCue` objects programmatically to provide a common interface within the client web browser. Further details are given in the video metadata search experiments, proposed in the [OGC](http://www.opengeospatial.org) Ideas github, to return [frames](https://github.com/opengeospatial/ideas/issues/91) and [clips](https://github.com/opengeospatial/ideas/issues/92)
+
+> NOTE: Whether this use case requires any changes to the user agent or not is unclear without further investigation. If no changes are required, this capability should be demonstrated and the use case listed as a non-goal.
+
 ### Media analysis visualization
 
 A video image analysis system processes a media stream to detect and recognize objects shown in the video. This system generates metadata describing the objects, including timestamps that describe the when the objects are visible, together with position information (e.g., bounding boxes). A web application then uses this timed metadata to overlay labels and annotations on the video using HTML and CSS.
