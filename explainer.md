@@ -110,9 +110,9 @@ For more information, see [this session](https://developer.apple.com/videos/play
 
 ### Unknown end time support for streamed cues
 
-A common WebVMT use case is a [`DataCue`](https://www.w3.org/TR/html51/semantics-embedded-content.html#datacue-datacue) which remains active until the end of the linked media - for example, when a persistent map annotation is added. In the live (unbounded) streaming use case, the duration of the linked media is unknown when the cue is added so the [`endTime`](https://www.w3.org/TR/html51/semantics-embedded-content.html#dom-texttrackcue-endtime) attribute cannot be set numerically, as discussed in [w3c/sdw issue #1106](https://github.com/w3c/sdw/issues/1106).
+A common WebVMT use case is a [`DataCue`](https://www.w3.org/TR/html52/semantics-embedded-content.html#datacue-datacue) which remains active until the end of the linked media - for example, when a persistent map annotation is added. In the live (unbounded) streaming use case, the duration of the linked media is unknown when the cue is added so the [`endTime`](https://html.spec.whatwg.org/multipage/media.html#dom-texttrackcue-endtime) attribute cannot be set numerically, as discussed in [w3c/sdw issue #1106](https://github.com/w3c/sdw/issues/1106).
 
-As HTML already supports [`media.duration = Infinity`](https://www.w3.org/TR/html52/semantics-embedded-content.html#offsets-into-the-media-resource) to represent the `duration` of unbounded media streams, the existing definition could be extended to also include cue `endTime` and address this issue as follows:
+As HTML already supports [`media.duration = Infinity`](https://html.spec.whatwg.org/multipage/media.html#offsets-into-the-media-resource) to represent the `duration` of unbounded media streams, the existing definition could be extended to also include cue `endTime` and address this issue as follows:
 
 ```
 const textTrack = videoElement.addTextTrack('metadata');
