@@ -128,7 +128,7 @@ const track = videoElement.addtrack('metadata');
 const cue = new DataCue(5.0, Infinity);
 cue.value = { "moveto": { "lat": 51.504362, "lng": -0.076153 } };
 cue.type = 'org.webvmt';
-addtrack.addCue(cue);
+track.addCue(cue);
 ```
 
 ### Event triggering
