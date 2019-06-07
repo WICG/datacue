@@ -118,17 +118,17 @@ For more information, see [this session](https://developer.apple.com/videos/play
 
 ### Unknown end time support for streamed cues
 
-A common WebVMT use case is a [`DataCue`](https://www.w3.org/TR/html52/semantics-embedded-content.html#datacue-datacue) which remains active until the end of the linked media - for example, when a persistent map annotation is added. In the live (unbounded) streaming use case, the duration of the linked media is unknown when the cue is added so the [`endTime`](https://html.spec.whatwg.org/multipage/media.html#dom-texttrackcue-endtime) attribute cannot be set numerically, as discussed in [w3c/sdw issue #1106](https://github.com/w3c/sdw/issues/1106).
+A user wants to display content which is synchronized to a web media object and remains visible from the cue start time until the media finishes playing. For example, a common use case for [WebVMT](https://w3c.github.io/sdw/proposals/geotagging/webvmt/) is to add a map annotation cue which persists for the media duration. In the case of live streaming, the end of the media timeline is unknown and there is no value of `TextTrackCue.endTime` that can represent this.
 
-As HTML already supports [`media.duration = Infinity`](https://html.spec.whatwg.org/multipage/media.html#offsets-into-the-media-resource) to represent the `duration` of unbounded media streams, the existing definition could be extended to also include cue `endTime` and address this issue as follows:
+It is proposed that a `TextTrackCue.endTime` value of `Infinity` could be used to represent the end of media time. This is a simple extension of the existing HTML standard where [`media.duration`](https://html.spec.whatwg.org/multipage/media.html#offsets-into-the-media-resource) equal to `Infinity` represents the duration of an unbounded stream.
 
-```
-const textTrack = videoElement.addTextTrack('metadata');
-// create cue from 5 secs to end of media
+```javascript
+const track = videoElement.addtrack('metadata');
+// Create a cue from 5 secs to end of media
 const cue = new DataCue(5.0, Infinity);
-cue.type = "org.mytype";
-cue.value = { mykey: 'myvalue' };
-textTrack.addCue(cue);
+cue.value = { "moveto": { "lat": 51.504362, "lng": -0.076153 } };
+cue.type = 'org.webvmt';
+addtrack.addCue(cue);
 ```
 
 ### Event triggering
