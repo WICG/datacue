@@ -120,13 +120,13 @@ const track = video.addTextTrack('metadata', {
   inBandMetadataTrackDispatchType: `${schemeIdUri} ${value}`
 });
 
-const parseScte35Message = (data) {
-  // TODO: Parse the message from the data ArrayBuffer
+const parseScte35Message = (data) => {
+  // TODO: Parse and return the message from the data ArrayBuffer
 };
 
 // The video.currentTime has reached the cue start time through normal
 // playback progression
-const cueEnterHandler = (event) = {
+const cueEnterHandler = (event) => {
   const cue = event.target;
   const message = parseScte35Message(cue.data);
   console.log(cue.startTime, cue.endTime, message);
@@ -134,7 +134,7 @@ const cueEnterHandler = (event) = {
 
 // The video.currentTime has reached the cue end time through normal
 // playback progression
-const cueExitHandler = (event) = {
+const cueExitHandler = (event) => {
   const cue = event.target;
   console.log(cue.startTime, cue.endTime);
 };
