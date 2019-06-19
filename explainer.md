@@ -18,7 +18,7 @@ The following sections describe a few use cases in more detail.
 
 A media content provider wants to allow insertion of content, such as personalised video, local news, or advertisements, into a video media stream that contains the main program content. To achieve this, timed metadata is used to describe the points on the media timeline, known as splice points, where switching playback to inserted content is possible.
 
-The Society for Cable and Televison Engineers (SCTE) specification [Digital Program Insertion Cueing for Cable (SCTE-35)](https://www.scte.org/SCTEDocs/Standards/SCTE%2035%202019.pdf) defines a data cue format for describing such insertion points. Use of these cues in MPEG-DASH and HLS streams is described in SCTE-35, sections 12.1 and 12.2.
+The Society for Cable and Televison Engineers (SCTE) specification [Digital Program Insertion Cueing for Cable (SCTE-35)](https://www.scte.org/SCTEDocs/Standards/SCTE%2035%202019r1.pdf) defines a data cue format for describing such insertion points. Use of these cues in MPEG-DASH and HLS streams is described in SCTE-35, sections 12.1 and 12.2.
 
 ### Lecture recording with slideshow
 
@@ -108,11 +108,49 @@ value = {
 
 For more information, see [this session](https://developer.apple.com/videos/play/wwdc2014/504/) from WWDC 2014.
 
-### Subscribing to event streams
+### Subscribing to receive in-band timed metadata cues
 
-> TODO: Add example code showing how a web application can subscribe to receive specific event streams by event type, for example, `emsg` events of a given `id` and (optional) `value`.
+A web application can subscribe to receive specific timed metadata cues by setting a text track's `inBandMetadataTrackDispatchType`. For example, to receive [SCTE 35](https://www.scte.org/SCTEDocs/Standards/ANSI_SCTE%20214-3%202015.pdf) cues:
 
-### Out-of-band events
+```javascript
+const schemeIdUri = 'urn:scte:scte35:2013:bin';
+const value = pid;
+const video = document.getElementById('video');
+const track = video.addTextTrack('metadata', {
+  inBandMetadataTrackDispatchType: `${schemeIdUri} ${value}`
+});
+
+const parseScte35Message = (data) {
+  // TODO: Parse the message from the data ArrayBuffer
+};
+
+// The video.currentTime has reached the cue start time through normal
+// playback progression
+const cueEnterHandler = (event) = {
+  const cue = event.target;
+  const message = parseScte35Message(cue.data);
+  console.log(cue.startTime, cue.endTime, message);
+};
+
+// The video.currentTime has reached the cue end time through normal
+// playback progression
+const cueExitHandler = (event) = {
+  const cue = event.target;
+  console.log(cue.startTime, cue.endTime);
+};
+
+// Cue has been parsed from the media container
+track.oncuereceived((event) => {
+  const cue = event.target;
+  console.log(cue.startTime, cue.endTime);
+
+  // Attach enter/exit event handlers
+  cue.onenter = cueEnterhandler;
+  cue.onexit = cueExitHandler;
+});
+```
+
+### Out-of-band timed metadata
 
 > TODO: Add example code showing how a web application can construct `DataCue` objects with start and end times, event type, and data payload. For `emsg` events, the event type is defined by the `id` and (optional) `value` fields.
 
