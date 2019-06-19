@@ -10,19 +10,19 @@ The [DataCue API](https://www.w3.org/TR/html53/semantics-embedded-content.html#t
 
 ## Use cases
 
-Media timed events carry metadata that is related to points in time, or regions of time on the media timeline, which can be used to trigger retrieval and/or rendering of web resources synchronized with media playback. Such resources can be used to enhance user experience in the context of media that is being rendered. Some examples include display of social media feeds corresponding to a live video stream such as a sporting event, banner advertisements for sponsored content, accessibility-related assets such as large print rendering of captions, and display of track titles or images alongside an audio stream.
+Timed metadata carries information that is related to points in time or periods of time on the media timeline, which can be used to trigger retrieval and/or rendering of web resources synchronized with media playback. Such resources can be used to enhance user experience in the context of media that is being rendered. Some examples include display of social media feeds corresponding to a live video stream such as a sporting event, banner advertisements for sponsored content, accessibility-related assets such as large print rendering of captions, and display of track titles or images alongside an audio stream.
 
 The following sections describe a few use cases in more detail.
 
 ### Dynamic content insertion
 
-A media content provider wants to allow insertion of content, such as personalised video, local news, or advertisements, into a video media stream that contains the main program content. To achieve this, media timed events used to describe the points on the media timeline, known as splice points, where switching playback to inserted content is possible.
+A media content provider wants to allow insertion of content, such as personalised video, local news, or advertisements, into a video media stream that contains the main program content. To achieve this, timed metadata is used to describe the points on the media timeline, known as splice points, where switching playback to inserted content is possible.
 
 The Society for Cable and Televison Engineers (SCTE) specification [Digital Program Insertion Cueing for Cable (SCTE-35)](https://www.scte.org/SCTEDocs/Standards/SCTE%2035%202019.pdf) defines a data cue format for describing such insertion points. Use of these cues in MPEG-DASH and HLS streams is described in SCTE-35, sections 12.1 and 12.2.
 
 ### Lecture recording with slideshow
 
-An HTML page contains title and info about the course/lecture, and two frames: a video of the lecturer in one, and their slides in the other. Each cue contains the URL of the slide to be presented, and the cue is active for the time range over which the slide should be visible.
+An HTML page contains title and info about the course/lecture, and two frames: a video of the lecturer in one and their slides in the other. Each timed metadata cue contains the URL of the slide to be presented, and the cue is active for the time range over which the slide should be visible.
 
 ### Audio stream with titles and images
 
@@ -32,7 +32,7 @@ Examples include [HLS timed metadata](https://developer.apple.com/library/archiv
 
 ### Control messages for media streaming clients
 
-A media streaming server uses media timed events to send control messages to media client library, such as [dash.js](https://github.com/Dash-Industry-Forum/dash.js/wiki). Typically, segmented streaming protocols such as HLS and MPEG-DASH make use of a manifest document that informs the client of the available encodings of a media stream, e.g., the Media Presentation Description (MPD) document in MPEG-DASH.
+A media streaming server uses timed metadata to send control messages to media client library, such as [dash.js](https://github.com/Dash-Industry-Forum/dash.js/wiki). Typically, segmented streaming protocols such as HLS and MPEG-DASH make use of a manifest document that informs the client of the available encodings of a media stream, e.g., the Media Presentation Description (MPD) document in MPEG-DASH.
 
 Should any of the content in the manifest document need to change, the client should refresh it by requesting an updated copy from the server. Section 5.10.4 of the [MPEG-DASH specification](https://standards.iso.org/ittf/PubliclyAvailableStandards/c065274_ISO_IEC_23009-1_2014.zip) describes an event type that is used to notify a client application. An in-band `emsg` event is used as an alternative to setting a cache duration in the response to the HTTP request for the manifest, so the client can refresh the MPD when it actually changes, as opposed to waiting for a cache duration expiry period to elapse. This also has the benefit of reducing the load on HTTP servers caused by frequent server requests.
 
@@ -46,7 +46,7 @@ WebVMT is an open format for metadata cues, synchronized with a timed media file
 
 A user searches for online media matching certain metadata conditions, for example within a given distance of a geographic location or an acceleration profile corresponding to a traffic accident. Results are returned from a remote server using a RESTful API as a list in JSON format.
 
-It should be possible for search results to be represented as media in the user agent, with linked metadata presented as `DataCue` objects programmatically to provide a common interface within the client web browser. Further details are given in the video metadata search experiments, proposed in the [OGC](http://www.opengeospatial.org) Ideas github, to return [frames](https://github.com/opengeospatial/ideas/issues/91) and [clips](https://github.com/opengeospatial/ideas/issues/92)
+It should be possible for search results to be represented as media in the user agent, with linked metadata presented as `DataCue` objects programmatically to provide a common interface within the client web browser. Further details are given in the video metadata search experiments, proposed in the [OGC](http://www.opengeospatial.org) Ideas GitHub, to return [frames](https://github.com/opengeospatial/ideas/issues/91) and [clips](https://github.com/opengeospatial/ideas/issues/92)
 
 > NOTE: Whether this use case requires any changes to the user agent or not is unclear without further investigation. If no changes are required, this capability should be demonstrated and the use case listed as a non-goal.
 
@@ -58,11 +58,11 @@ A video image analysis system processes a media stream to detect and recognize o
 
 During a live media presentation, dynamic and unpredictable events may occur which cause temporary suspension of the media presentation. During that suspension interval, auxiliary content such as the presentation of UI controls and media files, may be unavailable. Depending on the specific user engagement (or not) with the UI controls and the time at which any such engagement occurs, specific web resources may be rendered at defined times in a synchronized manner. For example, a multimedia A/V clip along with subtitles corresponding to an advertisement, and which were previously downloaded and cached by the UA, are played out.
 
-## In-band event processing
+## In-band timed metadata processing
 
-The exact set of in-band media timed events that we would aim to support is to be decided. MPEG DASH MPD and `emsg` events are a requirement, due to their inclusion in MPEG CMAF. We expect to discuss which other events to standardise as part of the incubation work.
+The exact set of in-band timed metadata formats that we would aim to support is to be decided. MPEG DASH MPD and `emsg` events are a requirement, due to their inclusion in MPEG CMAF. We expect to discuss which other events to standardise, particularly HLS timed metadata, as part of the incubation work.
 
-We anticipate specifying the handling of in-band events in a separate set of specifications, following a registry approach with one specification per media format that describes the event details for that format, similar to the [Media Source Extensions Byte Stream Format Registry](https://www.w3.org/TR/mse-byte-stream-format-registry/). Another approach could be to update [Sourcing In-band Media Resource Tracks from Media Containers into HTML](https://dev.w3.org/html5/html-sourcing-inband-tracks/), either in its current form as a single document, or splitting it by media format and adding a registry.
+In addition to specifying a new `DataCue` API, we anticipate specifying the handling of in-band timed metadata in a separate set of specifications, following a registry approach with one specification per media format that describes the timed metadata details for that format, similar to the [Media Source Extensions Byte Stream Format Registry](https://www.w3.org/TR/mse-byte-stream-format-registry/). Another approach could be to update [Sourcing In-band Media Resource Tracks from Media Containers into HTML](https://dev.w3.org/html5/html-sourcing-inband-tracks/), either in its current form as a single document, or splitting it by media format and adding a registry.
 
 ## Proposed API and example code
 
@@ -141,7 +141,7 @@ track.addCue(cue);
 
 ### WebVTT metadata cues
 
-Web applications today can use WebVTT metadata cues (the [VTTCue](https://www.w3.org/TR/webvtt1/#vttcue) API) to schedule out-of-band metadata events by serializing the event data to a string format (JSON, for example) when creating the cue, and deserializing the data when the cue is triggered. Although this works in practice, the serialization/deserialization step should be unnecessary. It also does not support in-band events.
+Web applications today can use WebVTT metadata cues (the [VTTCue](https://www.w3.org/TR/webvtt1/#vttcue) API) to schedule out-of-band timed metadata events by serializing the timed metadata to a string format (JSON, for example) when creating the cue, and deserializing the data when the cue's `onenter` event is fired. Although this works in practice, the serialization/deserialization step should be unnecessary. It also does not directly support in-band timed metadata.
 
 ### Application level stream parsing
 
