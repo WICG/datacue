@@ -20,7 +20,7 @@ The Society for Cable and Televison Engineers (SCTE) specification [Digital Prog
 
 ### Lecture recording with slideshow
 
-An HTML page contains title and info about the course/lecture, and two frames: a video of the lecturer in one and their slides in the other. Each timed metadata cue contains the URL of the slide to be presented, and the cue is active for the time range over which the slide should be visible.
+An HTML page contains title and information about the course or lecture, and two frames: a video of the lecturer in one and their slides in the other. Each timed metadata cue contains the URL of the slide to be presented, and the cue is active for the time range over which the slide should be visible.
 
 ### Audio stream with titles and images
 
@@ -38,7 +38,7 @@ Should any of the content in the manifest document need to change, the client sh
 
 A user records footage with metadata, including geolocation, on a mobile video device, e.g., drone or dashcam, to share on the web alongside a map, e.g., OpenStreetMap.
 
-WebVMT is an open format for metadata cues, synchronized with a timed media file, that can be used to drive an online map rendered in a separate HTML element alongside the media element on the web page. The media playhead position controls presentation and animation of the map, e.g., pan and zoom, and allows annotations to be added and removed, e.g., markers, at specified times during media playback. Control can also be overridden by the user with the usual interactive features of the map at any time, e.g., zoom. Concrete examples are provided by the [tech demos at the WebVMT website](http://webvmt.org/demos).
+WebVMT is an open format for metadata cues, synchronized with audio or video media, that can be used to drive an online map rendered in a separate HTML element alongside the media element on the web page. The media playhead position controls presentation and animation of the map, e.g., pan and zoom, and allows annotations to be added and removed, e.g., markers, at specified times during media playback. Control can also be overridden by the user with the usual interactive features of the map at any time, e.g., zoom. Concrete examples are provided by the [tech demos at the WebVMT website](http://webvmt.org/demos).
 
 ### Media metadata search results
 
