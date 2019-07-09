@@ -52,10 +52,6 @@ It should be possible for search results to be represented as media in the user 
 
 A video image analysis system processes a media stream to detect and recognize objects shown in the video. This system generates metadata describing the objects, including timestamps that describe the when the objects are visible, together with position information (e.g., bounding boxes). A web application then uses this timed metadata to overlay labels and annotations on the video using HTML and CSS.
 
-### Presentation of auxiliary content in live media
-
-During a live media presentation, dynamic and unpredictable events may occur which cause temporary suspension of the media presentation. During that suspension interval, auxiliary content such as the presentation of UI controls and media files, may be unavailable. Depending on the specific user engagement (or not) with the UI controls and the time at which any such engagement occurs, specific web resources may be rendered at defined times in a synchronized manner. For example, a multimedia A/V clip along with subtitles corresponding to an advertisement, and which were previously downloaded and cached by the UA, are played out.
-
 ## In-band timed metadata processing
 
 The exact set of in-band timed metadata formats that we would aim to support is to be decided. MPEG DASH MPD and `emsg` events are a requirement, due to their inclusion in MPEG CMAF. We expect to discuss which other events to standardise, particularly HLS timed metadata, as part of the incubation work.
