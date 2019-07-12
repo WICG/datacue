@@ -158,9 +158,11 @@ track.oncuereceived((event) => {
 
 ### Unknown end time support for streamed cues
 
-A user wants to display content which is synchronized to a web media object and remains visible from the cue start time until the media finishes playing. For example, a common use case for [WebVMT](https://w3c.github.io/sdw/proposals/geotagging/webvmt/) is to add a map annotation cue which persists for the media duration. In the case of live streaming, the end of the media timeline is unknown and there is no value of `TextTrackCue.endTime` that can represent this.
+A user wants to display content which is synchronized to a web media object and remains visible from the cue start time until the media finishes playing. For example, a common use case for [WebVMT](https://w3c.github.io/sdw/proposals/geotagging/webvmt/) is to add a map annotation cue which persists for the media duration. In the case of live streaming, the end of the media timeline is unknown and there is currently no value of `TextTrackCue.endTime` that can represent this.
 
-It is proposed that a `TextTrackCue.endTime` value of `Infinity` could be used to represent the end of media time. This is a simple extension of the existing HTML standard where [`media.duration`](https://html.spec.whatwg.org/multipage/media.html#offsets-into-the-media-resource) equal to `Infinity` represents the duration of an unbounded stream.
+It is proposed that a `TextTrackCue.endTime` value of `Infinity` be used to represent the end of media time. This is consistent with the approach used by the `HTMLMediaElement` [`duration`](https://html.spec.whatwg.org/multipage/media.html#offsets-into-the-media-resource) attribute, where `Infinity` represents the duration of an unbounded stream.
+
+`TextTrackCue.endTime` is declared as a [`double`](https://heycam.github.io/webidl/#idl-double), which excludes non-finite values, so we propose to change this to [`unrestricted double`](https://heycam.github.io/webidl/#idl-unrestricted-double).
 
 ```javascript
 const track = videoElement.addtrack('metadata');
