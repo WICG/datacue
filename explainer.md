@@ -189,7 +189,11 @@ Web applications today can use WebVTT metadata cues (the [VTTCue](https://www.w3
 
 ### Application level stream parsing
 
-The current approach for handling in-band event information, implemented by libraries such as [dash.js](https://github.com/Dash-Industry-Forum/dash.js/wiki) and [hls.js](https://github.com/video-dev/hls.js), is to parse the media segments in JavaScript to extract the events and construct `VTTCue` objects. On resource constrained devices such as smart TVs and streaming sticks, this leads to a significant performance penalty, which can have an impact on UI rendering updates if this is done on the UI thread. There can also be an impact on the battery life of mobile devices. Given that the media segments will be parsed anyway by the user agent, parsing in JavaScript is an expensive overhead that could be avoided.
+The current approach for handling in-band event information, implemented by libraries such as [dash.js](https://github.com/Dash-Industry-Forum/dash.js/wiki) and [hls.js](https://github.com/video-dev/hls.js), is to parse the media segments in JavaScript to extract the events and construct `VTTCue` objects.
+
+On resource constrained devices such as smart TVs and streaming sticks, this leads to a significant performance penalty, which can have an impact on UI rendering updates if this is done on the UI thread (although we note the [proposal](https://github.com/wicg/media-source/blob/mse-in-workers-using-handle/mse-in-workers-using-handle-explainer.md) to make Media Source Extensions available to Worker contexts). There can also be an impact on the battery life of mobile devices. Given that the media segments will be parsed anyway by the user agent, parsing in JavaScript is an expensive overhead that could be avoided.
+
+Avoiding parsing in JavaScript is also important for low latency video streaming applications, where minimizing the time taken to pass media content through to the media element's playback buffer is essential.
 
 ## Event synchronization
 
