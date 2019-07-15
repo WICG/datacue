@@ -122,28 +122,30 @@ const track = video.addTextTrack('metadata', {
   inBandMetadataTrackDispatchType: `${schemeIdUri} ${value}`
 });
 
-const parseScte35Message = (data) => {
-  // TODO: Parse and return the message from the data ArrayBuffer
-};
-
-// The video.currentTime has reached the cue start time through normal
-// playback progression
+// video.currentTime has reached the cue start time
+// through normal playback progression.
 const cueEnterHandler = (event) => {
   const cue = event.target;
-  const message = parseScte35Message(cue.data);
-  console.log(cue.startTime, cue.endTime, message);
+
+  // Parse the SCTE-35 message payload.
+  // parseSCTE35Data() is similar to Comcast's scte35.js library,
+  // adapted to take an ArrayBuffer as input.
+  // https://github.com/Comcast/scte35-js/blob/master/lib/scte35.ts
+  const scte35Message = parseSCTE35Data(cue.value.data);
+
+  console.log(cue.startTime, cue.endTime, scte35Message.tableId, scte35Message.spliceCommandType);
 };
 
-// The video.currentTime has reached the cue end time through normal
-// playback progression
+// video.currentTime has reached the cue end time
+// through normal playback progression.
 const cueExitHandler = (event) => {
   const cue = event.target;
   console.log(cue.startTime, cue.endTime);
 };
 
-// Cue has been parsed from the media container
+// A cue has been parsed from the media container.
 track.oncuereceived((event) => {
-  const cue = event.target;
+  const cue = event.cue;
   console.log(cue.startTime, cue.endTime);
 
   // Attach enter/exit event handlers
