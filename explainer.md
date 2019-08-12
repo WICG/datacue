@@ -68,9 +68,7 @@ In addition to specifying a new `DataCue` API, we anticipate specifying the hand
 
 ## Proposed API and example code
 
-The API follows recommendations made by the [Media Timed Events Task Force](https://w3c.github.io/me-media-timed-events/), and from a number of associated discussions, including the [TPAC breakout session on video metadata cues](https://github.com/w3c/strategy/issues/113#issuecomment-432971265).
-
-The API is based on WebKit's `DataCue`, which extends the [HTML5 `DataCue` API](https://www.w3.org/TR/2018/WD-html53-20181018/semantics-embedded-content.html#text-tracks-exposing-inband-metadata) with two attributes to support non-text metadata, `type` and `value` (see IDL [here](https://trac.webkit.org/browser/webkit/trunk/Source/WebCore/html/track/DataCue.idl)):
+The proposed API is based on the existing text track support in HTML and WebKit's `DataCue`. This extends the [HTML5 `DataCue` API](https://www.w3.org/TR/2018/WD-html53-20181018/semantics-embedded-content.html#text-tracks-exposing-inband-metadata) with two attributes to support non-text metadata, `type` and `value` (see IDL [here](https://trac.webkit.org/browser/webkit/trunk/Source/WebCore/html/track/DataCue.idl)):
 
 ```
 interface DataCue : TextTrackCue {
@@ -197,11 +195,11 @@ Avoiding parsing in JavaScript is also important for low latency video streaming
 
 ## Event synchronization
 
-The Media Timed Events Task Force has also [identified requirements for synchronization accuracy of event triggering](https://w3c.github.io/me-media-timed-events/#synchronization), which suggest changes to the [time marches on](https://html.spec.whatwg.org/multipage/media.html#time-marches-on) steps in HTML. These will be followed up separately to this `DataCue` proposal.
+The Media Timed Events Task Force of the Media and Entertainment Interest Group has also [identified requirements for synchronization accuracy of event triggering](https://w3c.github.io/me-media-timed-events/#synchronization), which suggest changes to the [time marches on](https://html.spec.whatwg.org/multipage/media.html#time-marches-on) steps in HTML. These will be followed up separately to this `DataCue` proposal.
 
 ## References
 
-This explainer is based on content from a [Note](https://w3c.github.io/me-media-timed-events/) written by the W3C Media and Entertainment Interest Group.
+This explainer is based on content from a [Note](https://w3c.github.io/me-media-timed-events/) written by the W3C Media and Entertainment Interest Group, and from a number of associated discussions, including the [TPAC breakout session on video metadata cues](https://github.com/w3c/strategy/issues/113#issuecomment-432971265).
 
 ## Acknowledgements
 
