@@ -28,11 +28,17 @@ A media content provider wants to provide visual information alongside an audio 
 
 Examples include [HLS timed metadata](https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/HTTP_Live_Streaming_Metadata_Spec/Introduction/Introduction.html), which uses in-band ID3 metadata to carry the image content, and RadioVIS in [DVB-DASH, section 9.1.7](https://www.etsi.org/deliver/etsi_ts/103200_103299/103285/01.02.01_60/ts_103285v010201p.pdf), which defines in-band event messages that contain image URLs and text messages to be displayed, with information about when the content should be displayed in relation to the media timeline.
 
-### Control messages for media streaming clients
+### MPEG-DASH specific events
 
-A media streaming server uses timed metadata to send control messages to media client library, such as [dash.js](https://github.com/Dash-Industry-Forum/dash.js/wiki). Typically, segmented streaming protocols such as HLS and MPEG-DASH make use of a manifest document that informs the client of the available encodings of a media stream, e.g., the Media Presentation Description (MPD) document in MPEG-DASH.
+MPEG-DASH defines several control messages for media streaming clients (e.g., libraries such as [dash.js](https://github.com/Dash-Industry-Forum/dash.js/wiki)). These messages are carried as in-band `emsg` events in the media container files. Details of the `emsg` message format are presented later in this explainer. The meaning of the `emsg` event is defined by a `scheme_id_url` and a `value` field. The following event types are defined in Section 5.10.4 of the [MPEG-DASH specification](https://standards.iso.org/ittf/PubliclyAvailableStandards/c065274_ISO_IEC_23009-1_2014.zip):
 
-Should any of the content in the manifest document need to change, the client should refresh it by requesting an updated copy from the server. Section 5.10.4 of the [MPEG-DASH specification](https://standards.iso.org/ittf/PubliclyAvailableStandards/c065274_ISO_IEC_23009-1_2014.zip) describes an event type that is used to notify a client application. An in-band `emsg` event is used as an alternative to setting a cache duration in the response to the HTTP request for the manifest, so the client can refresh the MPD when it actually changes, as opposed to waiting for a cache duration expiry period to elapse. This also has the benefit of reducing the load on HTTP servers caused by frequent server requests.
+* MPD Validity Expiration (`urn:mpeg:dash:event:2012`, value `1`): The DASH client should refresh its copy of the DASH manifest document (MPD) from the server. The `emsg` message data contains the MPD publish time. This mechanism is used as an alternative to setting a cache duration in the response to the HTTP request for the manifest, so the client can refresh the MPD when it actually changes, as opposed to waiting for a cache duration expiry period to elapse. This also has the benefit of reducing the load on HTTP servers caused by frequent server requests.
+
+* MPD Patch (`urn:mpeg:dash:event:2012`, value `2`): The DASH client should update the MPD, using XML Patch Operations ([RFC5261](https://tools.ietf.org/html/rfc5261)) The `emsg` message data contains the XML patch.
+
+The DASH Callback event is defined in [ISO/IEC 23009-1:2014/Amd.3:2016](https://www.iso.org/standard/68921.html):
+
+* DASH Callback (`urn:mpeg:dash:event:callback:2015`): The DASH client should make an HTTP GET request to a specifc URL, e.g., for analytics purposes. The response to this request is ignored. The `emsg` message data contains the URL.
 
 ### Synchronized map animations
 
@@ -107,6 +113,54 @@ value = {
 [This](https://trac.webkit.org/browser/webkit/trunk/LayoutTests/http/tests/media/track-in-band-hls-metadata.html) simple WebKit layout test loads various types of ID3 metadata from an HLS stream.
 
 For more information, see [this session](https://developer.apple.com/videos/play/wwdc2014/504/) from WWDC 2014.
+
+### Mapping to MPEG-DASH in-band emsg events
+
+The `emsg` data structure is defined in section 5.10.3.3 of the [MPEG-DASH spec](https://www.iso.org/standard/65274.html).
+Use of `emsg` within CMAF media is defined in section 7.4.5 of the [MPEG CMAF spec](https://www.iso.org/standard/71975.html) ([public draft](https://mpeg.chiariglione.org/sites/default/files/files/standards/parts/docs/w16186.zip)).
+
+> TODO: update reference to include version 1 format
+
+There are two versions in use, version 0 and 1:
+
+```
+
+aligned(8) class DASHEventMessageBox extends FullBox ('emsg', version, flags = 0) {
+  if (version == 0) {
+    string scheme_id_uri;
+    string value;
+    unsigned int(32) timescale_v0;
+    unsigned int(32) presentation_time_delta;
+    unsigned int(32) event_duration;
+    unsigned int(32) id;
+  } else if (version == 1) {
+    unsigned int(32) timescale_v1;
+    unsigned int(64) presentation_time;
+    unsigned int(32) event_duration;
+    unsigned int(32) id;
+    string scheme_id_uri;
+    string value;
+  }
+  unsigned int(8) message_data[];
+}
+```
+
+| DataCue field         | emsg value                                                                                                   |
+|-----------------------|--------------------------------------------------------------------------------------------------------------|
+| `DOMString id`        | `id`                                                                                                         |
+| `double startTime`    | Computed from `timescale` and `presentation_time_delta` or `presentation_time` (see Note)                    |
+| `double endTime`      | Computed from `timescale`, `presentation_time_delta` or `presentation_time`, and `event_duration` (see Note) |
+| `boolean pauseOnExit` | `false`                                                                                                      |
+| `any value`           | Object containing `data`, `schemeIdUri`, and `value` (see below)                                             |
+| `DOMString type`      | `"urn:mpeg:dash:emsg"` (or similar, TBD)                                                                     |
+
+**Note:** The `timescale` value provides the timescale for the `presentation_time_delta` and `event_duration` fields, in ticks per second. Refer to [CMAF](https://mpeg.chiariglione.org/sites/default/files/files/standards/parts/docs/w16186.zip) for details on the interpretation of these fields.
+
+| `value` field             | emsg value      | Description                                                                                                                                                           |
+|---------------------------|-----------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `ArrayBuffer messageData` | `message_data`  | Message body (may be empty)                                                                                                                                           |
+| `DOMString schemeIdUri`   | `scheme_id_uri` | Identifies the message scheme. The semantics and syntax of the `message_data` are defined by the owner of the scheme identified. The string may use URN or URL syntax |
+| `DOMString value`         | `value`         | Specifies the value for the event. The value space and semantics must be defined by the owners of the scheme identified by the `scheme_id_uri`                        |
 
 ### Subscribing to receive in-band timed metadata cues
 
