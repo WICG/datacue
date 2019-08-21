@@ -124,7 +124,6 @@ Use of `emsg` within CMAF media is defined in section 7.4.5 of the [MPEG CMAF sp
 There are two versions in use, version 0 and 1:
 
 ```
-
 aligned(8) class DASHEventMessageBox extends FullBox ('emsg', version, flags = 0) {
   if (version == 0) {
     string scheme_id_uri;
@@ -161,6 +160,12 @@ aligned(8) class DASHEventMessageBox extends FullBox ('emsg', version, flags = 0
 | `ArrayBuffer messageData` | `message_data`  | Message body (may be empty)                                                                                                                                           |
 | `DOMString schemeIdUri`   | `scheme_id_uri` | Identifies the message scheme. The semantics and syntax of the `message_data` are defined by the owner of the scheme identified. The string may use URN or URL syntax |
 | `DOMString value`         | `value`         | Specifies the value for the event. The value space and semantics must be defined by the owners of the scheme identified by the `scheme_id_uri`                        |
+
+### Mapping to MPEG-DASH MPD events
+
+Timed event information may also be carried in the manifest document.
+
+> TODO: Add example to show how a web app would construct a DataCue from an MPD event
 
 ### Subscribing to receive in-band timed metadata cues
 
