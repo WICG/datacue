@@ -201,14 +201,14 @@ const cueExitHandler = (event) => {
 };
 
 // A cue has been parsed from the media container.
-track.oncuereceived((event) => {
+track.oncuereceived = (event) => {
   const cue = event.cue;
   console.log(cue.startTime, cue.endTime);
 
   // Attach enter/exit event handlers
   cue.onenter = cueEnterhandler;
   cue.onexit = cueExitHandler;
-});
+};
 ```
 
 ### Out-of-band timed metadata
