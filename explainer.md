@@ -30,15 +30,17 @@ Examples include [HLS timed metadata](https://developer.apple.com/library/archiv
 
 ### MPEG-DASH specific events
 
-MPEG-DASH defines several control messages for media streaming clients (e.g., libraries such as [dash.js](https://github.com/Dash-Industry-Forum/dash.js/wiki)). These messages are carried as in-band `emsg` events in the media container files. Details of the `emsg` message format are presented later in this explainer. The meaning of the `emsg` event is defined by a `scheme_id_url` and a `value` field. The following event types are defined in Section 5.10.4 of the [MPEG-DASH specification](https://standards.iso.org/ittf/PubliclyAvailableStandards/c065274_ISO_IEC_23009-1_2014.zip):
+MPEG-DASH defines several control messages for media streaming clients (e.g., libraries such as [dash.js](https://github.com/Dash-Industry-Forum/dash.js/wiki)). These messages are carried as in-band `emsg` events in the media container files. Details of the `emsg` message format are presented later in this explainer. The meaning of the `emsg` event is defined by a `scheme_id_uri` and a `value` field. The following event types are defined in Section 5.10.4 of the [MPEG-DASH specification](https://www.iso.org/standard/79329.html):
 
 * MPD Validity Expiration (`urn:mpeg:dash:event:2012`, value `1`): The DASH client should refresh its copy of the DASH manifest document (MPD) from the server. The `emsg` message data contains the MPD publish time. This mechanism is used as an alternative to setting a cache duration in the response to the HTTP request for the manifest, so the client can refresh the MPD when it actually changes, as opposed to waiting for a cache duration expiry period to elapse. This also has the benefit of reducing the load on HTTP servers caused by frequent server requests.
 
-* MPD Patch (`urn:mpeg:dash:event:2012`, value `2`): The DASH client should update the MPD, using XML Patch Operations ([RFC5261](https://tools.ietf.org/html/rfc5261)) The `emsg` message data contains the XML patch.
+* MPD Patch (`urn:mpeg:dash:event:2012`, value `2`): This is similar to the MPD validity expiration message, but the DASH client should update the MPD using XML Patch Operations ([RFC5261](https://tools.ietf.org/html/rfc5261)), with an XML patch carried in the message data.
 
-The DASH Callback event is defined in [ISO/IEC 23009-1:2014/Amd.3:2016](https://www.iso.org/standard/68921.html):
+* MPD Update (`urn:mpeg:dash:event:2012`, value `3`): This is similar to the MPD validity expiration message, but the DASH client should update the MPD with the new MPD carried in the message data.
 
-* DASH Callback (`urn:mpeg:dash:event:callback:2015`): The DASH client should make an HTTP GET request to a specifc URL, e.g., for analytics purposes. The response to this request is ignored. The `emsg` message data contains the URL.
+* DASH Callback (`urn:mpeg:dash:event:callback:2015`, value `1`): The DASH client should make an HTTP GET request to a specifc URL, e.g., for analytics purposes. The response to this request is ignored. The message data contains the URL.
+
+* Presentation Termination (`urn:mpeg:dash:event:ttfn:2016`): This is an indication that the currently playing media is ending at a time earlier than expected from the current MPD. The `value` field describes whether the media presentation ends, the client should "chain" to another MPD, or use a fallback MPD in case of error.
 
 ### Synchronized map animations
 
