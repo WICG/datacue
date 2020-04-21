@@ -118,10 +118,8 @@ For more information, see [this session](https://developer.apple.com/videos/play
 
 ### Mapping to MPEG-DASH in-band emsg events
 
-The `emsg` data structure is defined in section 5.10.3.3 of the [MPEG-DASH spec](https://www.iso.org/standard/65274.html).
-Use of `emsg` within CMAF media is defined in section 7.4.5 of the [MPEG CMAF spec](https://www.iso.org/standard/71975.html) ([public draft](https://mpeg.chiariglione.org/sites/default/files/files/standards/parts/docs/w16186.zip)).
-
-> TODO: update reference to include version 1 format
+The `emsg` data structure is defined in section 5.10.3.3 of the [MPEG-DASH spec](https://www.iso.org/standard/79329.html).
+Use of `emsg` within CMAF media is defined in section 7.4.5 of the [MPEG CMAF spec](https://www.iso.org/standard/79106.html) ([public draft](https://mpeg.chiariglione.org/sites/default/files/files/standards/parts/docs/w16186.zip)).
 
 There are two versions in use, version 0 and 1:
 
@@ -244,7 +242,7 @@ track.addCue(cue);
 
 ### WebVTT metadata cues
 
-Web applications today can use WebVTT metadata cues (the [VTTCue](https://www.w3.org/TR/webvtt1/#vttcue) API) to schedule out-of-band timed metadata events by serializing the timed metadata to a string format (JSON, for example) when creating the cue, and deserializing the data when the cue's `onenter` event is fired. Although this works in practice, the serialization/deserialization step should be unnecessary. It also does not directly support in-band timed metadata.
+Web applications today can use WebVTT metadata cues (the [VTTCue](https://www.w3.org/TR/webvtt1/#vttcue) API) to schedule out-of-band timed metadata events by serializing the timed metadata to a string format (JSON, for example) when creating the cue, and deserializing the data when the cue's `onenter` event is fired. Although this works in practice, the serialization/deserialization step should be unnecessary. It also does not support in-band timed metadata.
 
 ### Application level stream parsing
 
