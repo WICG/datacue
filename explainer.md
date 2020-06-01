@@ -2,45 +2,43 @@
 
 ## Introduction
 
-HTTP Live Streaming (HLS) and MPEG Dynamic Adaptive Streaming over HTTP (MPEG-DASH) are the two main adaptive streaming formats in use on the web today. The media industry is coverging on the use of [MPEG Common Media Application Format (CMAF)](https://www.iso.org/standard/71975.html) as the common media delivery format. HLS, MPEG-DASH, and MPEG CMAF all support delivery timed metadata, i.e., metadata information that is synchronized to the audio or video media. Timed metadata can be used to support use cases such as dynamic content replacement, ad insertion, or presentation of supplemental content alongside the audio or video, or more generally, making changes to a web page, or executing application code triggered from JavaScript events, at specific points on the media timeline of an audio or video media stream.
+HTTP Live Streaming (HLS) and MPEG Dynamic Adaptive Streaming over HTTP (MPEG-DASH) are the two main adaptive streaming formats in use on the web today. The media industry is coverging on the use of [MPEG Common Media Application Format (CMAF)](https://www.iso.org/standard/71975.html) as the common media delivery format. HLS, MPEG-DASH, and MPEG CMAF all support delivery of timed metadata, i.e., metadata information that is synchronized to the audio or video media. Timed metadata can be used to support use cases such as dynamic content replacement, ad insertion, or presentation of supplemental content alongside the audio or video, or more generally, making changes to a web page, or executing application code triggered from JavaScript events, at specific points on the media timeline of an audio or video media stream.
 
-The data may be carried either "in-band", meaning that they are delivered within the audio or video media container or multiplexed with the media stream, or "out-of-band", meaning that they are delivered externally to the media container or media stream. This explainer proposes bringing support for such timed metadata to the web platform, in particular for MPEG-DASH `emsg` in-band events.
+The data may be carried either "in-band", meaning that they are delivered within the audio or video media container or multiplexed with the media stream, or "out-of-band", meaning that they are delivered externally to the media container or media stream. This explainer proposes bringing support for such timed metadata to the web platform.
 
 ## Use cases
-
-Some example use cases include display of social media feeds corresponding to a live video stream such as a sporting event, banner advertisements for sponsored content, accessibility-related assets such as large print rendering of captions, and display of track titles or images alongside an audio stream.
-
-The following sections describe a few use cases in more detail.
-
-### Dynamic content insertion
-
-A media content provider wants to allow insertion of content, such as personalised video, local news, or advertisements, into a video media stream that contains the main program content. To achieve this, timed metadata is used to describe the points on the media timeline, known as splice points, where switching playback to inserted content is possible.
-
-The Society for Cable and Televison Engineers (SCTE) specification [Digital Program Insertion Cueing for Cable (SCTE-35)](https://www.scte.org/SCTEDocs/Standards/SCTE%2035%202019r1.pdf) defines a data cue format for describing such insertion points. Use of these cues in MPEG-DASH and HLS streams is described in SCTE-35, sections 12.1 and 12.2.
 
 ### Lecture recording with slideshow
 
 An HTML page contains title and information about the course or lecture, and two frames: a video of the lecturer in one and their slides in the other. Each timed metadata cue contains the URL of the slide to be presented, and the cue is active for the time range over which the slide should be visible.
 
-### Audio stream with titles and images
+### Dynamic content insertion
 
-A media content provider wants to provide visual information alongside an audio stream, such as an image of the artist and title of the current playing track, to give users live information about the content they are listening to.
+A media content provider wants to allow insertion of content, such as personalised video, local news, or advertisements, into a video media stream that contains the main program content. To achieve this, timed metadata is used to describe the points on the media timeline, known as splice points, where switching playback to inserted content is possible.
 
-Examples include [HLS timed metadata](https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/HTTP_Live_Streaming_Metadata_Spec/Introduction/Introduction.html), which uses in-band ID3 metadata to carry the image content, and RadioVIS in [DVB-DASH, section 9.1.7](https://www.etsi.org/deliver/etsi_ts/103200_103299/103285/01.02.01_60/ts_103285v010201p.pdf), which defines in-band event messages that contain image URLs and text messages to be displayed, with information about when the content should be displayed in relation to the media timeline.
+[SCTE 35](https://scte-cms-resource-storage.s3.amazonaws.com/ANSI_SCTE-35-2019a-1582645390859.pdf) defines a data cue format for describing such insertion points. Use of these cues in MPEG-DASH streams is described in [SCTE 214-1](https://scte-cms-resource-storage.s3.amazonaws.com/Standards/ANSI_SCTE%20214-1%202016.pdf), [SCTE 214-2](https://scte-cms-resource-storage.s3.amazonaws.com/Standards/ANSI_SCTE%20214-2%202016.pdf), and [SCTE 214-3](https://scte-cms-resource-storage.s3.amazonaws.com/Standards/ANSI_SCTE%20214-3%202015.pdf). Use in HLS streams is described in SCTE-35 section 12.2.
 
 ### MPEG-DASH specific events
 
-MPEG-DASH defines several control messages for media streaming clients (e.g., libraries such as [dash.js](https://github.com/Dash-Industry-Forum/dash.js/wiki)). These messages are carried as in-band `emsg` events in the media container files. Details of the `emsg` message format are presented later in this explainer. The meaning of the `emsg` event is defined by a `scheme_id_uri` and a `value` field. The following event types are defined in Section 5.10.4 of the [MPEG-DASH specification](https://www.iso.org/standard/79329.html):
+MPEG-DASH defines several control messages for media streaming clients (e.g., libraries such as [dash.js](https://github.com/Dash-Industry-Forum/dash.js/wiki)). Control messages exist for several scenarios, such as:
 
-* MPD Validity Expiration (`urn:mpeg:dash:event:2012`, value `1`): The DASH client should refresh its copy of the DASH manifest document (MPD) from the server. The `emsg` message data contains the MPD publish time. This mechanism is used as an alternative to setting a cache duration in the response to the HTTP request for the manifest, so the client can refresh the MPD when it actually changes, as opposed to waiting for a cache duration expiry period to elapse. This also has the benefit of reducing the load on HTTP servers caused by frequent server requests.
+* The media player should refresh or update its copy of the manifest document (MPD)
+* The media player should make an HTTP request to a given URL for analytics purposes
+* The media presentation will end at a time earlier than expected
 
-* MPD Patch (`urn:mpeg:dash:event:2012`, value `2`): This is similar to the MPD validity expiration message, but the DASH client should update the MPD using XML Patch Operations ([RFC5261](https://tools.ietf.org/html/rfc5261)), with an XML patch carried in the message data.
+These messages may be carried as in-band `emsg` events in the media container files. 
 
-* MPD Update (`urn:mpeg:dash:event:2012`, value `3`): This is similar to the MPD validity expiration message, but the DASH client should update the MPD with the new MPD carried in the message data.
+### Media stream with video and synchronized graphics
 
-* DASH Callback (`urn:mpeg:dash:event:callback:2015`, value `1`): The DASH client should make an HTTP GET request to a specifc URL, e.g., for analytics purposes. The response to this request is ignored. The message data contains the URL.
+A content provider wants to provide synchronized graphical elements that may be rendered next to or on top of a video.
 
-* Presentation Termination (`urn:mpeg:dash:event:ttfn:2016`): This is an indication that the currently playing media is ending at a time earlier than expected from the current MPD. The `value` field describes whether the media presentation ends, the client should "chain" to another MPD, or use a fallback MPD in case of error.
+For example, in a talk show this could be a banner, shown in the lower third of the video, that displays the name of the guest. In a sports event, the graphics could show the latest lap times or current score, or highlight the location of the current active player. It could even be a full-screen overlay, to blend from one part of the program to another.
+
+The graphical elements are described in a stream or file containing cues that describe the start and end time of each graphical element, similar to a subtitle stream or file. The web application takes this data as input and renders it on top of the video image according to the cues.
+
+The purpose of rendering the graphical elements on the client device, rather than rendering them directly into the video image, is to allow the graphics to be optimized for the device's display parameters, such as aspect ratio and orientation. Another use case is adapting to user preferences, for localization or to improve accessibility.
+
+This use case requires frame accurate synchronization of the content being rendered over the video.
 
 ### Synchronized map animations
 
@@ -52,13 +50,9 @@ WebVMT is an open format for metadata cues, synchronized with audio or video med
 
 A user searches for online media matching certain metadata conditions, for example within a given distance of a geographic location or an acceleration profile corresponding to a traffic accident. Results are returned from a remote server using a RESTful API as a list in JSON format.
 
-It should be possible for search results to be represented as media in the user agent, with linked metadata presented as `DataCue` objects programmatically to provide a common interface within the client web browser. Further details are given in the video metadata search experiments, proposed in the [OGC](http://www.opengeospatial.org) Ideas GitHub, to return [frames](https://github.com/opengeospatial/ideas/issues/91) and [clips](https://github.com/opengeospatial/ideas/issues/92)
+It should be possible for search results to be represented as media in the user agent, with linked metadata presented as `DataCue` objects programmatically to provide a common interface within the client web browser. Further details are given in the video metadata search experiments, proposed in the [OGC](http://www.opengeospatial.org) Ideas GitHub, to return [frames](https://github.com/opengeospatial/ideas/issues/91) and [clips](https://github.com/opengeospatial/ideas/issues/92).
 
 > NOTE: Whether this use case requires any changes to the user agent or not is unclear without further investigation. If no changes are required, this capability should be demonstrated and the use case listed as a non-goal.
-
-### Media analysis visualization
-
-A video image analysis system processes a media stream to detect and recognize objects shown in the video. This system generates metadata describing the objects, including timestamps that describe the when the objects are visible, together with position information (e.g., bounding boxes). A web application then uses this timed metadata to overlay labels and annotations on the video using HTML and CSS.
 
 ## HTTP adaptive streaming
 
