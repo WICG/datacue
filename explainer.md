@@ -151,7 +151,7 @@ aligned(8) class DASHEventMessageBox extends FullBox ('emsg', version, flags = 0
 
 | `value` field             | emsg value      | Description                                                                                                                                                           |
 |---------------------------|-----------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `ArrayBuffer messageData` | `message_data`  | Message body (may be empty)                                                                                                                                           |
+| `ArrayBuffer data`        | `message_data`  | Message body (may be empty)                                                                                                                                           |
 | `DOMString schemeIdUri`   | `scheme_id_uri` | Identifies the message scheme. The semantics and syntax of the `message_data` are defined by the owner of the scheme identified. The string may use URN or URL syntax |
 | `DOMString value`         | `value`         | Specifies the value for the event. The value space and semantics must be defined by the owners of the scheme identified by the `scheme_id_uri`                        |
 
