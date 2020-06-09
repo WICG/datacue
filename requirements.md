@@ -44,7 +44,7 @@ This use case requires frame accurate synchronization of the content being rende
 Today, most media player libraries include support for timed metadata. Support varies between players, with some supporting only HLS timed metadata, e.g., [JWPlayer](https://www.jwplayer.com/html5-video-player/), others having support for DASH `emsg` boxes, such as [DASH.js](https://github.com/Dash-Industry-Forum/dash.js) and some that support both, e.g., [Shaka Player](https://github.com/google/shaka-player/).
 [Video.js](https://github.com/videojs/video.js) can be used with [mux.js](https://github.com/videojs/mux.js#metadata) to parse in-band timed metadata and captions.
 
-### Power efficiency
+### Processing efficiency
 
 On resource constrained devices such as smart TVs and streaming sticks, parsing media segments in JavaScript to extract timed metadata or event information leads to a significant performance penalty, which can have an impact on UI rendering updates if this is done on the UI thread. There can also be an impact on the battery life of mobile devices. Given that the media segments will be parsed anyway by the user agent, parsing in JavaScript is an expensive overhead that could be avoided.
 
