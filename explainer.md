@@ -18,7 +18,7 @@ A media content provider wants to allow insertion of content, such as personalis
 
 [SCTE 35](https://scte-cms-resource-storage.s3.amazonaws.com/ANSI_SCTE-35-2019a-1582645390859.pdf) defines a data cue format for describing such insertion points. Use of these cues in MPEG-DASH streams is described in [SCTE 214-1](https://scte-cms-resource-storage.s3.amazonaws.com/Standards/ANSI_SCTE%20214-1%202016.pdf), [SCTE 214-2](https://scte-cms-resource-storage.s3.amazonaws.com/Standards/ANSI_SCTE%20214-2%202016.pdf), and [SCTE 214-3](https://scte-cms-resource-storage.s3.amazonaws.com/Standards/ANSI_SCTE%20214-3%202015.pdf). Use in HLS streams is described in SCTE-35 section 12.2.
 
-### MPEG-DASH specific events
+### Media player control messages
 
 MPEG-DASH defines several control messages for media streaming clients (e.g., libraries such as [dash.js](https://github.com/Dash-Industry-Forum/dash.js/wiki)). Control messages exist for several scenarios, such as:
 
