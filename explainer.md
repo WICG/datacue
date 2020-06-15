@@ -252,7 +252,7 @@ The Media Timed Events Task Force of the Media and Entertainment Interest Group 
 
 ## References
 
-This explainer is based on content from a [Note](https://w3c.github.io/me-media-timed-events/) written by the W3C Media and Entertainment Interest Group, and from a number of associated discussions, including the [TPAC breakout session on video metadata cues](https://github.com/w3c/strategy/issues/113#issuecomment-432971265).
+This explainer is based on content from a [Note](https://w3c.github.io/me-media-timed-events/) written by the W3C Media and Entertainment Interest Group, and from a number of associated discussions, including the [TPAC breakout session on video metadata cues](https://github.com/w3c/strategy/issues/113#issuecomment-432971265). It is also closely related to the DASH-IF [DASH Player's Application Events and Timed Metadata Processing Models and APIs](https://dashif-documents.azurewebsites.net/Events/master/event.html) document.
 
 ## Acknowledgements
 
