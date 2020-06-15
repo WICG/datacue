@@ -26,7 +26,7 @@ MPEG-DASH defines several control messages for media streaming clients (e.g., li
 * The media player should make an HTTP request to a given URL for analytics purposes
 * The media presentation will end at a time earlier than expected
 
-These messages may be carried as in-band `emsg` events in the media container files. 
+These messages may be carried as in-band `emsg` events in the media container files.
 
 ### Media stream with video and synchronized graphics
 
@@ -64,25 +64,38 @@ Other user agents (Chrome, Edge, and Firefox) support adaptive streaming playbac
 
 ## In-band timed metadata processing
 
-The exact set of in-band timed metadata formats that we would aim to support is to be decided. MPEG DASH MPD and `emsg` events are a requirement, due to their inclusion in MPEG CMAF. We expect to discuss which other events to standardise, particularly HLS timed metadata, as part of the incubation work.
+The exact set of in-band timed metadata formats that we would aim to support is to be decided. MPEG DASH `emsg` events are a requirement, due to their inclusion in MPEG CMAF. We expect to discuss which other events to standardise, particularly HLS timed metadata, as part of the incubation work.
 
-In addition to specifying a new `DataCue` API, we anticipate specifying the handling of in-band timed metadata in a separate set of specifications, following a registry approach with one specification per media format that describes the timed metadata details for that format, similar to the [Media Source Extensions Byte Stream Format Registry](https://www.w3.org/TR/mse-byte-stream-format-registry/). Another approach could be to update [Sourcing In-band Media Resource Tracks from Media Containers into HTML](https://dev.w3.org/html5/html-sourcing-inband-tracks/), either in its current form as a single document, or splitting it by media format and adding a registry.
+Where message types are widely supported (e.g., the MPEG-DASH specific events described above), the DataCue API would present the data in parsed form, so that it's convenient for web applications to access. Other message types, such as application-specific messages, would not be parsed directly by the user agent and instead would be presented to the web application in raw binary form.
+
+In addition to specifying the `DataCue` API, we also need to specify the handling of in-band timed metadata. This could be done either in the DataCue spec, or in a separate set of specifications, following a registry approach with one specification per media format that describes the timed metadata details for that format, similar to the [Media Source Extensions Byte Stream Format Registry](https://www.w3.org/TR/mse-byte-stream-format-registry/). Another approach could be to update [Sourcing In-band Media Resource Tracks from Media Containers into HTML](https://dev.w3.org/html5/html-sourcing-inband-tracks/), either in its current form as a single document, or splitting it by media format and adding a registry.
 
 ## Proposed API and example code
 
-The proposed API is based on the existing text track support in HTML and WebKit's `DataCue`. This extends the [HTML5 `DataCue` API](https://www.w3.org/TR/2018/WD-html53-20181018/semantics-embedded-content.html#text-tracks-exposing-inband-metadata) with two attributes to support non-text metadata, `type` and `value` (see IDL [here](https://trac.webkit.org/browser/webkit/trunk/Source/WebCore/html/track/DataCue.idl)):
+The proposed API is based on the existing text track support in HTML and WebKit's `DataCue`. This extends the [HTML5 `DataCue` API](https://www.w3.org/TR/2018/WD-html53-20181018/semantics-embedded-content.html#text-tracks-exposing-inband-metadata) with two attributes to support non-text metadata, `type` and `value`. We also add a constructor that allows these fields to be initialized by web applications.
 
 ```
 interface DataCue : TextTrackCue {
-    attribute ArrayBuffer data; // Always empty
+    constructor(double startTime, unrestricted double endTime, ArrayBuffer data, optional DOMString type);
+    constructor(double startTime, unrestricted double endTime, any value, optional DOMString type);
+
+    attribute ArrayBuffer? data;
 
     // Proposed extensions.
-    attribute any value;
+    attribute any? value;
     readonly attribute DOMString type;
 };
 ```
 
-`type`: A string identifying the type of metadata:
+`data`: Contains the raw (unparsed) message data. This value is `null` if the implementation provides parsed message data for the given message type.
+
+`value`: Contains the parsed message data. This value is `null` if the implementation does not support parsing of the given message type. If not `null`, the content and structure of the `value` is determined by the `type` field.
+
+`type`: A string identifying the type of metadata.
+
+### Mapping to HLS timed metadata
+
+WebKit supports the several kinds of timed metadata, using the following `type` values:
 
 | Type                       | Purpose             |
 | -------------------------- | ------------------- |
@@ -92,23 +105,9 @@ interface DataCue : TextTrackCue {
 | `org.mp4ra`                | MPEG-4 metadata     |
 | `org.id3`                  | ID3 metadata        |
 
-> TODO: How to map the MPEG-DASH event stream identifiers (`id` and `value`) to this `type` field?
+In each case, the `value` attribute contains the parsed message data.
 
-`value`: An object with the metadata item key, data, and optionally a locale:
-
-```
-value = {
-    key: String
-    data: String | Number | Array | ArrayBuffer | Object
-    locale: String
-}
-```
-
-> TODO: Add example code to demonstrate API usage.
-
-[This](https://trac.webkit.org/browser/webkit/trunk/LayoutTests/http/tests/media/track-in-band-hls-metadata.html) simple WebKit layout test loads various types of ID3 metadata from an HLS stream.
-
-For more information, see [this session](https://developer.apple.com/videos/play/wwdc2014/504/) from WWDC 2014.
+Additional information about existing support in WebKit can be found in [the IDL](https://trac.webkit.org/browser/webkit/trunk/Source/WebCore/html/track/DataCue.idl) and in [this layout test](https://trac.webkit.org/browser/webkit/trunk/LayoutTests/http/tests/media/track-in-band-hls-metadata.html), which loads various types of ID3 metadata from an HLS stream.
 
 ### Mapping to MPEG-DASH in-band emsg events
 
@@ -138,22 +137,16 @@ aligned(8) class DASHEventMessageBox extends FullBox ('emsg', version, flags = 0
 }
 ```
 
-| DataCue field         | emsg value                                                                                                   |
+| DataCue attribute     | emsg value                                                                                                   |
 |-----------------------|--------------------------------------------------------------------------------------------------------------|
 | `DOMString id`        | `id`                                                                                                         |
 | `double startTime`    | Computed from `timescale` and `presentation_time_delta` or `presentation_time` (see Note)                    |
 | `double endTime`      | Computed from `timescale`, `presentation_time_delta` or `presentation_time`, and `event_duration` (see Note) |
 | `boolean pauseOnExit` | `false`                                                                                                      |
-| `any value`           | Object containing `data`, `schemeIdUri`, and `value` (see below)                                             |
-| `DOMString type`      | `"urn:mpeg:dash:emsg"` (or similar, TBD)                                                                     |
+| `any value`           | Object containing parsed data from the `message_data` field                                                  |
+| `DOMString type`      | `scheme_id_uri` + U+0020 + `value`                                                                           |
 
 **Note:** The `timescale` value provides the timescale for the `presentation_time_delta` and `event_duration` fields, in ticks per second. Refer to [CMAF](https://mpeg.chiariglione.org/sites/default/files/files/standards/parts/docs/w16186.zip) for details on the interpretation of these fields.
-
-| `value` field             | emsg value      | Description                                                                                                                                                           |
-|---------------------------|-----------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `ArrayBuffer data`        | `message_data`  | Message body (may be empty)                                                                                                                                           |
-| `DOMString schemeIdUri`   | `scheme_id_uri` | Identifies the message scheme. The semantics and syntax of the `message_data` are defined by the owner of the scheme identified. The string may use URN or URL syntax |
-| `DOMString value`         | `value`         | Specifies the value for the event. The value space and semantics must be defined by the owners of the scheme identified by the `scheme_id_uri`                        |
 
 ### Mapping to MPEG-DASH MPD events
 
@@ -161,48 +154,114 @@ Timed event information may also be carried in the manifest document.
 
 > TODO: Add example to show how a web app would construct a DataCue from an MPD event
 
+## Examples
+
 ### Subscribing to receive in-band timed metadata cues
 
-A web application can subscribe to receive specific timed metadata cues by setting a text track's `inBandMetadataTrackDispatchType`. For example, to receive [SCTE 35](https://www.scte.org/SCTEDocs/Standards/ANSI_SCTE%20214-3%202015.pdf) cues:
+This example shows how to add a `cuechange` handler that can be used to receive media-timed data and event cues.
 
 ```javascript
-const schemeIdUri = 'urn:scte:scte35:2013:bin';
-const value = pid;
 const video = document.getElementById('video');
-const track = video.addTextTrack('metadata', {
-  inBandMetadataTrackDispatchType: `${schemeIdUri} ${value}`
-});
 
+let metadataTrackAdded = false;
+
+video.textTracks.addEventListener('addtrack', (event) => {
+  const textTrack = event.track;
+
+  if (!metadataTrackAdded && textTrack.kind === 'metadata') {
+    // See cueChangeHandler examples below
+    textTrack.addEventLIstener('cuechange', cueChangeHandler);
+    metadataTrackAdded = textTrack;
+  }
+});
+```
+
+### MPEG-DASH callback event handler
+
+```javascript
+const cueChangeHandler = (event) => {
+  const metadataTrack = event.target;
+  const activeCues = metadataTrack.activeCues;
+
+  for (let i = 0; i < activeCues.length; i++) {
+    const cue = activeCues[i];
+
+    if (cue.type === 'urn:mpeg:dash:event:callback:2015 1') {
+      // The UA delivers parsed message data for this message type
+      const url = cue.value;
+      fetch(url).then(() => { console.log('Callback completed'); });
+    }
+  }
+};
+```
+
+### SCTE-35 dynamic content insertion cue handler
+
+This example shows how a web application can handle [SCTE 35](https://scte-cms-resource-storage.s3.amazonaws.com/Standards/ANSI_SCTE%20214-3%202015.pdf) cues, that are assumed not to be parsed by the browser implementation.
+
+```javascript
+const cueChangeHandler = (event) => {
+  const metadataTrack = event.target;
+  const activeCues = metadataTrack.activeCues;
+
+  for (let i = 0; i < activeCues.length; i++) {
+    const cue = activeCues[i];
+
+    // TODO: the emsg value contains the pid, add to cue.type here:
+    if (cue.type === 'urn:scte:scte35:2013:bin') {
+      // Parse the SCTE-35 message payload.
+      // parseSCTE35Data() is similar to Comcast's scte35.js library,
+      // adapted to take an ArrayBuffer as input.
+      // https://github.com/Comcast/scte35-js/blob/master/lib/scte35.ts
+      const scte35Message = parseSCTE35Data(cue.data);
+
+      console.log(cue.startTime, cue.endTime, scte35Message.tableId, scte35Message.spliceCommandType);
+    }
+  }
+};
+```
+
+### Cue enter/exit handlers
+
+This example shows how a web application can use the proposed new `addcue` event to attach `enter` and `exit` handlers to each cue on the metadata track.
+
+```javascript
 // video.currentTime has reached the cue start time
-// through normal playback progression.
+// through normal playback progression
 const cueEnterHandler = (event) => {
   const cue = event.target;
-
-  // Parse the SCTE-35 message payload.
-  // parseSCTE35Data() is similar to Comcast's scte35.js library,
-  // adapted to take an ArrayBuffer as input.
-  // https://github.com/Comcast/scte35-js/blob/master/lib/scte35.ts
-  const scte35Message = parseSCTE35Data(cue.value.data);
-
-  console.log(cue.startTime, cue.endTime, scte35Message.tableId, scte35Message.spliceCommandType);
+  console.log('cueEnter', cue.startTime, cue.endTime);
 };
 
 // video.currentTime has reached the cue end time
-// through normal playback progression.
+// through normal playback progression
 const cueExitHandler = (event) => {
   const cue = event.target;
-  console.log(cue.startTime, cue.endTime);
+  console.log('cueExit', cue.startTime, cue.endTime);
 };
 
-// A cue has been parsed from the media container.
-track.oncuereceived = (event) => {
+// A cue has been parsed from the media container
+const addCueHandler = (event) => {
   const cue = event.cue;
-  console.log(cue.startTime, cue.endTime);
 
   // Attach enter/exit event handlers
   cue.onenter = cueEnterhandler;
   cue.onexit = cueExitHandler;
 };
+
+const video = document.getElementById('video');
+
+let metadataTrackAdded = false;
+
+video.textTracks.addEventListener('addtrack', (event) => {
+  const textTrack = event.track;
+
+  if (!metadataTrackAdded && textTrack.kind === 'metadata') {
+    // See cueChangeHandler examples below
+    textTrack.addEventLIstener('addcue', addCueHandler);
+    metadataTrackAdded = textTrack;
+  }
+});
 ```
 
 ### Out-of-band timed metadata
@@ -218,11 +277,11 @@ It is proposed that a `TextTrackCue.endTime` value of `Infinity` be used to repr
 `TextTrackCue.endTime` is declared as a [`double`](https://heycam.github.io/webidl/#idl-double), which excludes non-finite values, so we propose to change this to [`unrestricted double`](https://heycam.github.io/webidl/#idl-unrestricted-double).
 
 ```javascript
-const track = videoElement.addtrack('metadata');
+const video = document.getElementById('video');
+const track = video.addtrack('metadata');
 // Create a cue from 5 secs to end of media
-const cue = new DataCue(5.0, Infinity);
-cue.value = { "moveto": { "lat": 51.504362, "lng": -0.076153 } };
-cue.type = 'org.webvmt';
+const data = { "moveto": { "lat": 51.504362, "lng": -0.076153 } };
+const cue = new DataCue(5.0, Infinity, data, 'org.webvmt');
 track.addCue(cue);
 ```
 
