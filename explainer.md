@@ -163,15 +163,12 @@ This example shows how to add a `cuechange` handler that can be used to receive 
 ```javascript
 const video = document.getElementById('video');
 
-let metadataTrackAdded = false;
-
 video.textTracks.addEventListener('addtrack', (event) => {
   const textTrack = event.track;
 
-  if (!metadataTrackAdded && textTrack.kind === 'metadata') {
+  if (textTrack.kind === 'metadata') {
     // See cueChangeHandler examples below
     textTrack.addEventLIstener('cuechange', cueChangeHandler);
-    metadataTrackAdded = textTrack;
   }
 });
 ```
@@ -251,15 +248,12 @@ const addCueHandler = (event) => {
 
 const video = document.getElementById('video');
 
-let metadataTrackAdded = false;
-
 video.textTracks.addEventListener('addtrack', (event) => {
   const textTrack = event.track;
 
-  if (!metadataTrackAdded && textTrack.kind === 'metadata') {
+  if (textTrack.kind === 'metadata') {
     // See cueChangeHandler examples below
     textTrack.addEventLIstener('addcue', addCueHandler);
-    metadataTrackAdded = textTrack;
   }
 });
 ```
