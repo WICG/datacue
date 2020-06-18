@@ -72,26 +72,26 @@ In addition to specifying the `DataCue` API, we also need to specify the handlin
 
 ## Proposed API and example code
 
-The proposed API is based on the existing text track support in HTML and WebKit's `DataCue`. This extends the [HTML5 `DataCue` API](https://www.w3.org/TR/2018/WD-html53-20181018/semantics-embedded-content.html#text-tracks-exposing-inband-metadata) with two attributes to support non-text metadata, `type` and `value`. We also add a constructor that allows these fields to be initialized by web applications.
+The proposed API is based on the existing text track support in HTML and WebKit's `DataCue`. This extends the [HTML5 `DataCue` API](https://www.w3.org/TR/2018/WD-html53-20181018/semantics-embedded-content.html#text-tracks-exposing-inband-metadata) with two attributes to support non-text metadata, `type` and `value` that replace the existing `data` attribute. We also add a constructor that allows these fields to be initialized by web applications.
 
-```
+```webidl
 interface DataCue : TextTrackCue {
-    constructor(double startTime, unrestricted double endTime, ArrayBuffer data, optional DOMString type);
     constructor(double startTime, unrestricted double endTime, any value, optional DOMString type);
 
+    // Propose to deprecate / remove this attribute.
     attribute ArrayBuffer? data;
 
     // Proposed extensions.
-    attribute any? value;
+    attribute any value;
     readonly attribute DOMString type;
 };
 ```
 
-`data`: Contains the raw (unparsed) message data. This value is `null` if the implementation provides parsed message data for the given message type.
+`value`: Contains the message data, in either parsed or unparsed form. Unparsed data is exposed as an `ArrayBuffer`, and it is up to the web application to parse the data. For parsed data, the content and structure of the `value` field is expected to be in a more convenient form for web applications to use than an `ArrayBuffer`, such as a string, or an object. The `value` may be `null` if the message type contains no message data.
 
-`value`: Contains the parsed message data. This value is `null` if the implementation does not support parsing of the given message type. If not `null`, the content and structure of the `value` is determined by the `type` field.
+> TODO: WebIDL seems not to allow `any` to be [nullable](https://heycam.github.io/webidl/#idl-nullable-type).
 
-`type`: A string identifying the type of metadata.
+`type`: A string that identifies the structure and content of the cue's `value`.
 
 ### Mapping to HLS timed metadata
 
@@ -196,7 +196,7 @@ const cueChangeHandler = (event) => {
 
 ### SCTE-35 dynamic content insertion cue handler
 
-This example shows how a web application can handle [SCTE 35](https://scte-cms-resource-storage.s3.amazonaws.com/Standards/ANSI_SCTE%20214-3%202015.pdf) cues, that are assumed not to be parsed by the browser implementation.
+This example shows how a web application can handle [SCTE 35](https://scte-cms-resource-storage.s3.amazonaws.com/Standards/ANSI_SCTE%20214-3%202015.pdf) cues, both in the case where the cues are parsed by the browser implementation, and where parsed by the web application.
 
 ```javascript
 const cueChangeHandler = (event) => {
@@ -212,7 +212,7 @@ const cueChangeHandler = (event) => {
       // parseSCTE35Data() is similar to Comcast's scte35.js library,
       // adapted to take an ArrayBuffer as input.
       // https://github.com/Comcast/scte35-js/blob/master/lib/scte35.ts
-      const scte35Message = parseSCTE35Data(cue.data);
+      const scte35Message = (cue.value instanceof ArrayBuffer) ? parseSCTE35Data(cue.value) : cue.value;
 
       console.log(cue.startTime, cue.endTime, scte35Message.tableId, scte35Message.spliceCommandType);
     }
