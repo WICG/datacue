@@ -256,7 +256,6 @@ video.textTracks.addEventListener('addtrack', (event) => {
   if (textTrack.kind === 'metadata') {
     textTrack.mode = 'hidden';
 
-    // See cueChangeHandler examples below
     textTrack.addEventLIstener('addcue', addCueHandler);
   }
 });
