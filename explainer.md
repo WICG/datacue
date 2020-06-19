@@ -211,7 +211,7 @@ const cueChangeHandler = (event) => {
       // Parse the SCTE-35 message payload.
       // parseSCTE35Data() is similar to Comcast's scte35.js library,
       // adapted to take an ArrayBuffer as input.
-      // https://github.com/Comcast/scte35-js/blob/master/lib/scte35.ts
+      // https://github.com/Comcast/scte35-js/blob/master/src/scte35.ts
       const scte35Message = (cue.value instanceof ArrayBuffer) ? parseSCTE35Data(cue.value) : cue.value;
 
       console.log(cue.startTime, cue.endTime, scte35Message.tableId, scte35Message.spliceCommandType);
