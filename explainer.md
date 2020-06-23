@@ -143,10 +143,17 @@ aligned(8) class DASHEventMessageBox extends FullBox ('emsg', version, flags = 0
 | `double startTime`    | Computed from `timescale` and `presentation_time_delta` or `presentation_time` (see Note)                    |
 | `double endTime`      | Computed from `timescale`, `presentation_time_delta` or `presentation_time`, and `event_duration` (see Note) |
 | `boolean pauseOnExit` | `false`                                                                                                      |
-| `any value`           | Object containing parsed data from the `message_data` field                                                  |
-| `DOMString type`      | `scheme_id_uri` + U+0020 + `value`                                                                           |
+| `any value`           | Object containing data from the `message_data` and `value` emsg fields (see below)                           |
+| `DOMString type`      | `scheme_id_uri`                                                                                              |
 
 **Note:** The `timescale` value provides the timescale for the `presentation_time_delta` and `event_duration` fields, in ticks per second. Refer to [CMAF](https://mpeg.chiariglione.org/sites/default/files/files/standards/parts/docs/w16186.zip) for details on the interpretation of these fields.
+
+The `DataCue.value` field is an object containing the following attributes:
+
+| Attribute             | emsg value      | Description                                                                                                                                          |
+|-----------------------|-----------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `any data`            | `message_data`  | The message data, either in unparsed form as an `ArrayBuffer` or in parsed form as a string, object, or other type as appropriate for the given data |
+| `DOMString emsgValue` | `value`         | Specifies the value for the event. The value space and semantics must be defined by the owners of the scheme identified by the `scheme_id_uri`       |
 
 ### Mapping to MPEG-DASH MPD events
 
@@ -185,9 +192,9 @@ const cueChangeHandler = (event) => {
   for (let i = 0; i < activeCues.length; i++) {
     const cue = activeCues[i];
 
-    if (cue.type === 'urn:mpeg:dash:event:callback:2015 1') {
+    if (cue.type === 'urn:mpeg:dash:event:callback:2015') {
       // The UA delivers parsed message data for this message type
-      const url = cue.value;
+      const url = cue.value.data.url;
       fetch(url).then(() => { console.log('Callback completed'); });
     }
   }
@@ -206,13 +213,13 @@ const cueChangeHandler = (event) => {
   for (let i = 0; i < activeCues.length; i++) {
     const cue = activeCues[i];
 
-    // TODO: the emsg value contains the pid, add to cue.type here:
     if (cue.type === 'urn:scte:scte35:2013:bin') {
       // Parse the SCTE-35 message payload.
       // parseSCTE35Data() is similar to Comcast's scte35.js library,
       // adapted to take an ArrayBuffer as input.
       // https://github.com/Comcast/scte35-js/blob/master/src/scte35.ts
-      const scte35Message = (cue.value instanceof ArrayBuffer) ? parseSCTE35Data(cue.value) : cue.value;
+      const scte35Message = (cue.value.data instanceof ArrayBuffer) ?
+        parseSCTE35Data(cue.value.data) : cue.value.data;
 
       console.log(cue.startTime, cue.endTime, scte35Message.tableId, scte35Message.spliceCommandType);
     }
