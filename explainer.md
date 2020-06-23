@@ -79,7 +79,7 @@ interface DataCue : TextTrackCue {
     constructor(double startTime, unrestricted double endTime, any value, optional DOMString type);
 
     // Propose to deprecate / remove this attribute.
-    attribute ArrayBuffer? data;
+    attribute ArrayBuffer data;
 
     // Proposed extensions.
     attribute any value;
