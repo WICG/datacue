@@ -192,9 +192,10 @@ const cueChangeHandler = (event) => {
   for (let i = 0; i < activeCues.length; i++) {
     const cue = activeCues[i];
 
-    if (cue.type === 'urn:mpeg:dash:event:callback:2015') {
-      // The UA delivers parsed message data for this message type
-      const url = cue.value.data.url;
+    // The UA delivers parsed message data for this message type
+    if (cue.type === 'urn:mpeg:dash:event:callback:2015' &&
+        cue.value.emsgValue === '1') {
+      const url = cue.value.data;
       fetch(url).then(() => { console.log('Callback completed'); });
     }
   }
