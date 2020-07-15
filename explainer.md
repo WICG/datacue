@@ -177,7 +177,7 @@ video.textTracks.addEventListener('addtrack', (event) => {
     textTrack.mode = 'hidden';
 
     // See cueChangeHandler examples below
-    textTrack.addEventLIstener('cuechange', cueChangeHandler);
+    textTrack.addEventListener('cuechange', cueChangeHandler);
   }
 });
 ```
@@ -264,7 +264,7 @@ video.textTracks.addEventListener('addtrack', (event) => {
   if (textTrack.kind === 'metadata') {
     textTrack.mode = 'hidden';
 
-    textTrack.addEventLIstener('addcue', addCueHandler);
+    textTrack.addEventListener('addcue', addCueHandler);
   }
 });
 ```
