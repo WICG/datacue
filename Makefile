@@ -11,3 +11,6 @@ ifneq (,$(REMOTE))
 else
 	$(PREPROCESSOR) -f spec "$<" "$@"
 endif
+
+clean:
+	rm -f index.html
