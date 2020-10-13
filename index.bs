@@ -38,12 +38,13 @@ TODO: ...
 <xmp class="idl">
   [Exposed=Window]
   interface DataCue : TextTrackCue {
-    constructor(double startTime, double endTime, ArrayBuffer data);
-    attribute ArrayBuffer data;
+    constructor(double startTime, unrestricted double endTime, any value, optional DOMString type);
+    attribute any value;
+    readonly attribute DOMString type;
   };
 </xmp>
 
-# In-band event  mappings # {#in-band-event-mappings}
+# In-band event mappings # {#in-band-event-mappings}
 
 The following sections describe how various in-band message formats are mapped to the {{DataCue}} API.
 
