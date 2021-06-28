@@ -119,35 +119,25 @@ The __inband event processing algorithm__ is a new algorithm which we propose to
 
 When __inband event messages__ have been parsed by the segment parser loop then the following steps are run:
 
-1. Parse media samples
-2. Append media samples to media buffer, calculate its start in media source buffer (segment_start)
-3. For each emsg
-    1. Parse emsg
-    2. Calculate event start and end times, and compare it to the current playback position.
-    3. If
-        1. event's end time < current playback position or
-        2. its emsg.id exists in the "already-dispatched" table then stop processing this emsg and go to Step 3 to start processing the next emsg.
-    4. If dispatch_mode = onreceive
-        1. Dispatch the event
-        2. Add its emsg.id to the "already-dispatched" table
-        3. Go to Step 3 to start processing the next emsg.
-    5. Otherwise (dispatch_mode = onstart):
-        1. Calculate the event dispatch range:
-            1. For emsg v0 (esmg.version = 0): dispatch_range_start = segment_start + emsg.presentation_time_delta / emsg.time_scale
-            2. For emsg v1 (emsg.version = 1): dispatch_range_start = emsg.presentation_time/emsg.timescale
-            3. dispatch_range_end = dispatch_range_start + emsg.duration / emsg.timescale
-        2. If there is already existing event in the dispatch range:
-            1. Divide the range to subranges, such that each subrange is either
-                1. empty (no event), or
-                2. is occupied with one or more events
-            2. For each subrange:
-                1. Add a new event constaining:
-                    1. emsg.scheme_id_uri
-                    2. emsg.value
-                    3. emsg.id
-                    4. dispatch_range_start
-                    5. dispatch_duration = emsg.duration/emsg.timescale
-                    6. emsg.message_data()
+1. For each inband event message in the media segment run the following steps:
+    1. Parse the emsg
+    2. Generate the `eventType` from the emsg.scheme_id_uri and emsg.value
+    3. Look up the `eventType` in the `InbandEventTrack`'s list of subscribed event types
+        1. If not present, discard the emsg and abort these steps
+    4. Calculate the `startTime` and `endTime` values for the `DataCue`:
+        1. For emsg v0 (esmg.version = 0): startTime = segment_start + emsg.presentation_time_delta / emsg.time_scale
+        2. For emsg v1 (emsg.version = 1): startTime = emsg.presentation_time / emsg.timescale
+        3. If emsg.duration is 0xFFFFFFFF then endTime = +Infinity, else endTime = startTime + emsg.duration / emsg.timescale
+    5. If there is an equivalent event message in the `InbandEventTrack`'s [list of text track cues](https://html.spec.whatwg.org/multipage/media.html#text-track-list-of-cues), discard the event message and abort these steps. An event message is equivalent if its `id`, `scheme_id_uri`, and `value` values are the same those of any existing
+    5. Construct a `DataCue` instance with the following attributes:
+        1. startTime (as calculated above)
+        2. endTime (as calculated above)
+        3. id = emsg.id
+        4. pauseOnExit = false
+        5. type = emsg.scheme_id_uri
+        6. value = { data: emsg.message_data, emsgValue: emsg.value }
+    5. If the subscription's dispatch mode is **onreceive**, queue a task to fire an event named `addcue` at the `InbandEventTrack` object with the `cue` attribute initialized to the new `DataCue` object
+    6. If the subscription's dispatch mode is **onstart**, run the HTML [`addCue()` steps](https://html.spec.whatwg.org/multipage/media.html#dom-texttrack-addcue) with the new `DataCue` object
 
 ### Dispatch
 
