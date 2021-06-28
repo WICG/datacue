@@ -141,6 +141,8 @@ When __inband event messages__ have been parsed by the segment parser loop then 
 
 ### Dispatch
 
+> TODO: Firing of cue `enter` and `exit` for event messages in **onstart** dispatch mode is handled by the HTML [time marches on steps](https://html.spec.whatwg.org/multipage/media.html#time-marches-on)
+
 1. Find the events occurring in the dispatch buffer at the playback position.
 2. For each event
     1. If its emsg.id is not in the "already-dispatched" table,
@@ -150,6 +152,8 @@ When __inband event messages__ have been parsed by the segment parser loop then 
     2. Otherwise, remove the event from the dispatch buffer
 
 ### Purge
+
+> TODO: Purging is controlled by the web application, by calling [SourceBuffer.remove(startTime, endTime)](https://www.w3.org/TR/media-source/#dom-sourcebuffer-remove). The MSE [Range Removal](https://www.w3.org/TR/media-source/#sourcebuffer-range-removal) algorithm applies. Should this algorithm also remove cues that lie in the removed time range?
 
 In a purge operation, either a range from the start or a range from the end of the media buffer is purged. This range is referred to as the "purged-range" in this subclause.
 
