@@ -76,14 +76,14 @@ The proposed API is based on the existing text track support in HTML and WebKit'
 
 ```webidl
 interface DataCue : TextTrackCue {
-    constructor(double startTime, unrestricted double endTime, any value, optional DOMString type);
+  constructor(double startTime, unrestricted double endTime, any value, optional DOMString type);
 
-    // Propose to deprecate / remove this attribute.
-    attribute ArrayBuffer data;
+  // Propose to deprecate / remove this attribute.
+  attribute ArrayBuffer data;
 
-    // Proposed extensions.
-    attribute any value;
-    readonly attribute DOMString type;
+  // Proposed extensions.
+  attribute any value;
+  readonly attribute DOMString type;
 };
 ```
 
