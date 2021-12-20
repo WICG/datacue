@@ -87,9 +87,7 @@ interface DataCue : TextTrackCue {
 };
 ```
 
-`value`: Contains the message data, in either parsed or unparsed form. Unparsed data is exposed as an `ArrayBuffer`, and it is up to the web application to parse the data. For parsed data, the content and structure of the `value` field is expected to be in a more convenient form for web applications to use than an `ArrayBuffer`, such as a string, or an object. The `value` may be `null` if the message type contains no message data.
-
-> TODO: WebIDL seems not to allow `any` to be [nullable](https://heycam.github.io/webidl/#idl-nullable-type).
+`value`: Contains the message data, in either parsed or unparsed form. Unparsed data is exposed as an `ArrayBuffer`, and it is up to the web application to parse the data. For parsed data, the content and structure of the `value` field is expected to be in a more convenient form for web applications to use than an `ArrayBuffer`, such as a string, or an object. The `value` may be `undefined` if the message type contains no message data.
 
 `type`: A string that identifies the structure and content of the cue's `value`.
 
