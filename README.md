@@ -4,6 +4,20 @@ This is the repository for the DataCue Web Incubator CG, a collaborative project
 
 The repo is used for developing documentation and code resources identified by the group.
 
+## Proposals
+
+### DataCue API
+
+* [Explainer](explainer.md)
+
+### TextTrackCue enhancements for programmatic subtitle and caption presentation
+
+* [Explainer](https://github.com/WebKit/explainers/blob/main/texttracks/README.md)
+
+### Expose TextTrackCue constructor
+
+* [Explainer](text-track-cue-constructor.md)
+
 ## References
 
 * [Draft Spec](https://wicg.github.io/datacue/)
