@@ -17,9 +17,9 @@ This page explains the motivation for the [proposal to expose TextTrackCue const
 
 ### TextTrackCue Proposal
 
-[TextTrackCue is an abstract base class](https://developer.mozilla.org/en-US/docs/Web/API/TextTrackCue) for all types of cue, which means that it is designed to be extended. Hence it does not directly specify any attributes related to cue content and expects these attributes to be defined by the programmer in the extended cue class. VTTCue and DataCue are both examples of extended cue classes which inherit the properties of TextTrackCue.
+[TextTrackCue is an abstract base class](https://developer.mozilla.org/en-US/docs/Web/API/TextTrackCue) for all types of cue and is designed to be extended. This base class only defines timing information, and omits cue content which is its abstract component. Cue content should be defined by the extended cue class. VTTCue and DataCue are both examples of extended cue classes which inherit the properties of TextTrackCue.
 
-However, a user-defined cue extension is not currently possible in Javascript. The extended cue's constructor is unable to call the TextTrackCue constructor because this is prohibited by the web interface.
+However, a user-defined cue extension is not currently possible in Javascript. The extended cue's constructor must call the TextTrackCue's constructor in order to inherit its parent's properties. This is not permitted unless the TextTrackCue constructor is exposed in the web interface as proposed.
 
 #### Extended Cue Example
 ````
@@ -39,7 +39,7 @@ class MyExtendedCue extends TextTrackCue {
 // create an extended cue
 const cue = new MyExtendedCue(0, 1, {hello: 'extended-cue'});
 ````
-Permitting this `super` call in the web interface would enable custom cue extensions to be written in Javascript and make this widely-implemented feature accessible to the web community.
+Permitting this `super` call by exposing its class constructor in the web interface would enable custom cue extensions to be written in Javascript and make this widely-implemented feature accessible to the web community.
 
 ### Comparison With DataCue
 
