@@ -9,19 +9,23 @@ This page explains the motivation for the [proposal to expose TextTrackCue const
 ![TextTrackCue_Support2502](https://github.com/user-attachments/assets/566d1a6c-50c9-4a1a-af55-6c3c9e0ce08e)
 [Screenshot from caniuse.com/textrackcue](https://caniuse.com/texttrackcue)
 
-[DataCue](https://wicg.github.io/datacue/#datacue-interface) was proposed to provide equivalent support for timed metadata and is also extended from TextTrackCue. DataCue was implemented and matured in Apple's WebKit, though that feature was subsequently dropped in accordance with W3C rules because only a single browser implemented this API.
+[DataCue](https://wicg.github.io/datacue/#datacue-interface) was proposed to provide equivalent support for timed metadata and is also extended from TextTrackCue. DataCue was implemented and matured in Apple's WebKit, though that feature was subsequently dropped in accordance with W3C rules because this was only implemented in a single browser.
 
 ### DataCue Design
 
-[DataCue](https://wicg.github.io/datacue/#datacue-interface) implements a simple interface with `type` and `value` attributes which represent the cue type and cue content respectively. Any form of timed metadata can be stored in `value` and this is identified using `type` so that relevant cue content can be accessed quickly and easily.
+[DataCue](https://wicg.github.io/datacue/#datacue-interface) implements a simple interface with `type` and `value` attributes which represent the cue type and cue content respectively. Any form of timed metadata can be stored in `value` and identified using `type` so that relevant cue content can be correctly recognised and accessed.
 
 ### TextTrackCue Proposal
 
-[TextTrackCue is an abstract base class](https://developer.mozilla.org/en-US/docs/Web/API/TextTrackCue) for all types of cue and is designed to be extended. This base class only defines timing information, and omits cue content which is its abstract component. Cue content should be defined by the extended cue class. VTTCue and DataCue are both examples of extended cue classes which inherit the properties of TextTrackCue.
+[TextTrackCue is an abstract base class](https://developer.mozilla.org/en-US/docs/Web/API/TextTrackCue) for all timed data cues and is [designed to be extended for each specific data format](https://html.spec.whatwg.org/multipage/media.html#guidelines-for-exposing-cues-in-various-formats-as-text-track-cues). This base class only defines timing information, and omits cue content. Cue content is the abstract component that is defined by the extended cue class. VTTCue and DataCue are both examples of extended cue classes which inherit their timing properties from TextTrackCue.
 
-However, a user-defined cue extension is not currently possible in Javascript. The extended cue's constructor must call the TextTrackCue's constructor in order to inherit its parent's properties. This is not permitted unless the TextTrackCue constructor is exposed in the web interface as proposed.
+However, user-defined cue extension is not currently possible in Javascript. Object inheritance requires that the extended cue's constructor must call the TextTrackCue's constructor to allow the derived cue to  inherit its parent's properties. Such inheritance is not possible unless the TextTrackCue constructor is exposed in the web interface [as proposed](https://github.com/WICG/datacue/issues/35).
+
+Inheritance of TextTrackCue properties is also the subject of [WebVTT issue 519](https://github.com/w3c/webvtt/issues/519) which highlights that this is currently handled incorrectly for VTTCue.
 
 #### Extended Cue Example
+
+This is a simple example of a user-defined cue.
 ````
 // define extended cue class
 class MyExtendedCue extends TextTrackCue {
@@ -47,17 +51,17 @@ Custom cue extensions are functionally equivalent to the DataCue API design:
  * The extended cue class name is equivalent to `DataCue.type`.
  * The cue content defined by the extended cue class is equivalent to `DataCue.value`.
 
-In addition, an extended cue can define class functions which are not explicitly included in the DataCue API design.
+In addition, an extended cue can define class _functions_ which are not explicitly included in the DataCue API design.
 
-The change required to enable this functionality is very simple and the potential benefit to the web community is significant. As a result, browser implementers are more likely to adopt the proposed change.
+The change required to enable this functionality is simple and the potential benefit to the web community is significant. As a result, browser implementers are more likely to adopt the proposed change.
 
 ### Summary
 
-This proposal yields equivalent functionality to DataCue API and addresses the challenge that caused the previous DataCue feature to be dropped.
+This proposal provides equivalent functionality to DataCue API and addresses the challenge that caused the previous DataCue feature to be dropped.
 
 ## Demos
 
-Example code has been created to test and demonstrate how custom cue extensions can be supported in web browsers if [this proposal](https://github.com/WICG/datacue/issues/35) is accepted.
+Example code has been written to test and demonstrate how custom cue extensions can be supported in web browsers if [this proposal](https://github.com/WICG/datacue/issues/35) is accepted.
 
 ### Custom Cues Demo
 
@@ -69,7 +73,7 @@ In this demo:
  1. A mixture of `CountdownCue` and `ColourCue` cues are created.
  1. Event listeners are added to `enter` and `exit` events for each cue.
  1. A TextTrack of `kind='metadata'` is attached to the `<video>` element in the page.
- 1. All these cues are added to this track.
+ 1. All cues are added to this track.
 
 #### Custom Cue Example: Colour
 ````
@@ -94,7 +98,7 @@ When the video is played, the received cues drive event handlers which update co
 
 ![CustomCue7_Firefox](https://github.com/user-attachments/assets/aebf91f6-ecb1-4dee-a494-d2e234bc0303)
 
-This demo is built on a polyfill implementation of the proposed TextTrackCue API which demonstrates proof of concept and correct operation. The polyfill enables this demo to operate successfully in all web browsers tested - including Chrome, Safari and Firefox.
+This demo is built on a polyfill implementation of the proposed TextTrackCue API which demonstrates proof of concept and correct operation. The polyfill allows this demo to run successfully in all web browsers tested - including Chrome, Safari and Firefox.
 
 ## Use Cases
 
@@ -102,7 +106,7 @@ This demo is built on a polyfill implementation of the proposed TextTrackCue API
 
 #### Introduction
 
-[TextTrackCue](https://html.spec.whatwg.org/multipage/media.html#texttrackcue) is an abstract base class with `startTime`, `endTime` and `id` attributes which enable [TextTrack](https://html.spec.whatwg.org/multipage/media.html#texttrack) to synchronise the cue's `enter` and `exit` events with a media timeline. This base class is agnostic of the cue content, though does not mandate any cue payload. The parking control use case is a practical example that demonstrates why no payload may be required and the exhibition venue use case highlights why base class extension is important to differentiate between different cue types.
+[TextTrackCue](https://html.spec.whatwg.org/multipage/media.html#texttrackcue) is an abstract base class with `startTime`, `endTime` and `id` attributes which enable [TextTrack](https://html.spec.whatwg.org/multipage/media.html#texttrack) to determine when a cue becomes active or inactive and to schedule associated events. This base class is agnostic of the cue content, though does not mandate _any_ cue payload. The parking control use case is a practical example that demonstrates why no payload may be required and the exhibition venue use case highlights why base class extension is important to differentiate between different cue types.
 
 #### Parking Control Use Case
 
@@ -124,7 +128,7 @@ const cue = new ParkingControlCue(3600, 7200, vehicleId);
 Each vehicle's visit is stored as a cue in an out-of-band metadata file format such as WebVMT that is separate from the video file. Personal information is anonymised so access to this timed metadata file need not be restricted to safeguard privacy rights, and these details can be processed for several purposes:
 
  * Parking regulations can be enforced by combining this metadata file with time and payment information to verify that each vehicle has complied with the rules.
- * Vehicles in breach of parking regulations can be spotted. In this case, access to the associated video file can be requested to identify the offending vehicle so that suitable action can be taken.
+ * Vehicles in breach of parking regulations can be recognised. In this case, access to the associated video file can be requested to identify the offending vehicle so that suitable action can be taken.
  * Electronic signs can display the number of free parking spaces in real time using streamed data.
  * Automatic barriers can block vehicle entrances if parking capacity is reached.
  * Parking utilisation can be measured and analysed.
@@ -137,7 +141,7 @@ The parking control example is part of a wider class of use cases that don't req
  * Vehicles at a refuelling station.
  * Visitors to an exhibition.
 
-Cue types should always be differentiated by using their extended class names, but the exhibition venue use case serves to emphasise the importance of this requirement.
+Cue types should be differentiated by using their extended class names in order to correctly access cue content, but the exhibition venue use case highlights the importance of this requirement when cues have no content.
 
 #### Exhibition Venue Use Case
 
@@ -161,6 +165,6 @@ const cue1 = new ParkingCue(7200, 10800, vehicleId);
 const admissionId = ticketNumber('booking123456');
 const cue2 = new ExhibitionCue(7800, 9400, admissionId);
 ````
-Neither cue type has a payload, so the two cue types are structurally identical to each other and to the TextTrackCue base class. However, their cue types can be accurately differentiated from each other by using their extended class names.
+Neither cue type has a payload, so the two cue types are structurally indistinguishable from each other and from the TextTrackCue base class. However, their cue types can be accurately differentiated and recognised by using their extended class names. Using two different cue types also avoids ambiguity that would occur if any pair of `vehicleId` and `admissionId` values happen to be identical.
 
-Note that these cues may be generated by code from two different developers that are agnostic of each other. Using two different cue types also avoids ambiguity that would occur if any pair of `vehicleId` and `admissionId` values happen to be identical.
+Note that cues may be generated by code from two different developers that are agnostic of each other. Cue handler code must always be able to accurately recognise cue type whether or not a cue has any content.
